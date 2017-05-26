@@ -6,7 +6,7 @@ let json = [];
 
 const URL = process.argv[2];
 const OUTPUT_FILE = process.argv[3];
-const DEBUG = true;
+const DEBUG = false;
 const ERRORS = [];
 
 if(!URL || !OUTPUT_FILE){
@@ -27,12 +27,17 @@ JSDOM.fromURL(URL)
           json.push({
             title: document.querySelector('.title-32.vmargin8').textContent,
             id: document.querySelector('.product-segment.MainProductSection').getAttribute('id'),
-            price: document.querySelector('.sale-price').getAttribute('data-sale-price'),
+            price: +document.querySelector('.sale-price').getAttribute('data-sale-price') * 100,
             currency: "USD",
             urlTo: window.location.href,
             sizes: [...document.querySelector('.size-dropdown-block').querySelectorAll('option')].slice(1).map(el=>el.textContent.trim()),
             description: document.querySelector('.product-segment.ProductDescription ').innerHTML.replace(/\n/g,'').trim(),
-            images: [...document.querySelectorAll('[data-zoom]')].reverse().slice(1).map(img=>img.src)
+            images: [...document.querySelectorAll('[data-zoom]')].reverse().slice(1).map(img=>{
+              return {
+                id: img.src.match(/\/(en_US|default)\/([a-zA-Z0-9_]+)\//)[2],
+                fileName: img.src.match(/zoom\/(.+)\.jpg/)[1] + '.jpg'
+              }
+            })
           })
           counter[0]++
         } catch (e) {
