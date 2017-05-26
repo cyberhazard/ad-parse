@@ -4,8 +4,10 @@ const fs = require('fs');
 
 let json = [];
 
-const URL = process.argv[2]
-const OUTPUT_FILE = process.argv[3]
+const URL = process.argv[2];
+const OUTPUT_FILE = process.argv[3];
+const DEBUG = true;
+const ERRORS = [];
 
 if(!URL || !OUTPUT_FILE){
   console.log('Ошибка! Неправильное использование!\n\tПример: node server.js \'http://www.adidas.com/us/basketball-accessories\' basketball-accessories.json')
@@ -34,10 +36,11 @@ JSDOM.fromURL(URL)
           })
           counter[0]++
         } catch (e) {
-          //console.log(window.location.href+' ('+document.querySelector('.product-segment.MainProductSection').getAttribute('id')+') => error')
+          if(DEBUG) ERRORS.push(window.location.href+' ('+document.querySelector('.product-segment.MainProductSection').getAttribute('id')+') => error')
           counter[1]++
         }
       })
-      fs.writeFile(OUTPUT_FILE,JSON.stringify(json,null,2),()=>console.log(`done: success(${counter[0]}), errors(${counter[1]})`))
+      fs.writeFile(OUTPUT_FILE,JSON.stringify(json,null,2),()=>console.log(`done: success(${counter[0]}), errors(${counter[1]})`));
+      if(DEBUG) fs.writeFile('errors.log',ERRORS.join('\n'),null,2);
     })
   })
